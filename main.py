@@ -22,7 +22,7 @@ v_min, v_max = -0.5, 0.5
 u_steps, v_steps = 50, 10
 
 # параметры камеры
-camera_pos = np.array([5, 5, 5])
+camera_pos = np.array([0, 0, -2])
 camera_angle_x = 0
 camera_angle_y = 0
 zoom = 200
