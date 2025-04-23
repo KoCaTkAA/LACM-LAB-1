@@ -22,7 +22,7 @@ v_min, v_max = -0.5, 0.5
 u_steps, v_steps = 50, 10
 
 # параметры камеры
-camera_pos = np.array([0, 0, -2])
+camera_pos = np.array([5, 5, 5])
 camera_angle_x = 0
 camera_angle_y = 0
 zoom = 200
@@ -62,18 +62,14 @@ def normal_triangle(p1, p2, p3):
     return normal / normal_len
 
 
-def calculate_lighting(normal, light_pos, base_color):
+def calculate_lighting(normal, light_pos):
     light_dir = light_pos / vector_len(light_pos)
     intensity = abs(scalar_product(normal, light_dir))
-    intensity = max(0, min(1, intensity))
-
     ratio = 0.3
     intensity = ratio + (1 - ratio) * intensity
+    return tuple(int(c * intensity) for c in surface)
 
-    return tuple(int(c * intensity) for c in base_color)
 
-
-# треугольнички
 def generate_polygons():
     points = []
     polygons = []
@@ -99,7 +95,7 @@ def generate_polygons():
     return polygons
 
 
-def project_point(point):
+def projection_point(point):
     rot_x = np.array([
         [1, 0, 0],
         [0, math.cos(camera_angle_x), -math.sin(camera_angle_x)],
@@ -112,7 +108,7 @@ def project_point(point):
         [-math.sin(camera_angle_y), 0, math.cos(camera_angle_y)]
     ])
 
-    rotated = scalar_product(rot_y, scalar_product(rot_x, point - camera_pos))
+    rotated = np.dot(rot_y, np.dot(rot_x, point - camera_pos))
 
     if rotated[2] != 0:
         z = 1 / rotated[2]
@@ -139,12 +135,12 @@ def draw_surface(polygons):
 
             normal = normal_triangle(p1, p2, p3)
 
-            color = calculate_lighting(normal, light_pos, surface)
+            color = calculate_lighting(normal, light_pos)
 
-            points_2d = [project_point(p) for p in poly]
+            points_2d = [projection_point(p) for p in poly]
 
             pygame.draw.polygon(screen, color, points_2d)
-            pygame.draw.polygon(screen, (0, 0, 0), points_2d, 1)
+            pygame.draw.polygon(screen, grid, points_2d, 1)
 
 
 running = True
